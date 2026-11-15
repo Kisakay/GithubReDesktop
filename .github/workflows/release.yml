@@ -32,7 +32,7 @@ jobs:
     # Ubuntu 22.04 (glibc 2.35) keeps the binaries compatible with most distributions.
     runs-on: ${{ matrix.runner }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install system dependencies
         run: |
@@ -73,7 +73,7 @@ jobs:
           rpm -qip dist/*.rpm
           tar -tzf dist/*.tar.gz
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: packages-${{ matrix.arch }}
           path: |
@@ -88,9 +88,9 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v') || inputs.publish
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           pattern: packages-*
           path: dist
