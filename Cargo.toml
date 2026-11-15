@@ -1,0 +1,81 @@
+[package]
+name = "github-redesktop"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.90"
+license = "MIT"
+description = "A fast, native GitHub Desktop for Linux, built with Rust and libcosmic"
+repository = "https://github.com/Kisakay/GithubReDesktop"
+homepage = "https://github.com/Kisakay/GithubReDesktop"
+readme = "README.md"
+keywords = ["git", "github", "desktop", "cosmic", "gui"]
+categories = ["development-tools", "gui"]
+authors = ["Kisakay"]
+
+[[bin]]
+name = "github-redesktop"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1"
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+dirs = "6"
+i18n-embed = { version = "0.16", features = ["fluent-system", "desktop-requester"] }
+i18n-embed-fl = "0.10"
+open = "5"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+rfd = { version = "0.15", default-features = false, features = ["xdg-portal", "tokio"] }
+rust-embed = "8"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+trash = "5"
+keyring = { version = "3", features = ["async-secret-service", "tokio", "crypto-rust"] }
+which = "7"
+
+[dependencies.libcosmic]
+git = "https://github.com/pop-os/libcosmic.git"
+default-features = false
+features = ["winit", "tokio", "x11", "wayland", "multi-window", "dbus-config", "about", "single-instance", "wgpu", "a11y"]
+
+[profile.release]
+lto = "thin"
+codegen-units = 4
+strip = true
+opt-level = 3
+
+[package.metadata.deb]
+name = "github-redesktop"
+maintainer = "Kisakay"
+copyright = "2026, Kisakay"
+license-file = ["LICENSE", "0"]
+extended-description = """\
+GitHub ReDesktop is a native rewrite of GitHub Desktop for Linux, built with \
+Rust and the COSMIC toolkit (libcosmic). Stage, commit, branch, push, pull, \
+browse history and clone your GitHub repositories with a fast, beautiful UI."""
+depends = "$auto, git"
+section = "devel"
+priority = "optional"
+assets = [
+    ["target/release/github-redesktop", "usr/bin/", "755"],
+    ["resources/io.github.kisakay.GithubReDesktop.desktop", "usr/share/applications/", "644"],
+    ["resources/io.github.kisakay.GithubReDesktop.metainfo.xml", "usr/share/metainfo/", "644"],
+    ["resources/icons/hicolor/scalable/apps/io.github.kisakay.GithubReDesktop.svg", "usr/share/icons/hicolor/scalable/apps/", "644"],
+    ["README.md", "usr/share/doc/github-redesktop/", "644"],
+]
+
+[package.metadata.generate-rpm]
+name = "github-redesktop"
+license = "MIT"
+summary = "A fast, native GitHub Desktop for Linux"
+assets = [
+    { source = "target/release/github-redesktop", dest = "/usr/bin/github-redesktop", mode = "755" },
+    { source = "resources/io.github.kisakay.GithubReDesktop.desktop", dest = "/usr/share/applications/io.github.kisakay.GithubReDesktop.desktop", mode = "644" },
+    { source = "resources/io.github.kisakay.GithubReDesktop.metainfo.xml", dest = "/usr/share/metainfo/io.github.kisakay.GithubReDesktop.metainfo.xml", mode = "644" },
+    { source = "resources/icons/hicolor/scalable/apps/io.github.kisakay.GithubReDesktop.svg", dest = "/usr/share/icons/hicolor/scalable/apps/io.github.kisakay.GithubReDesktop.svg", mode = "644" },
+    { source = "LICENSE", dest = "/usr/share/licenses/github-redesktop/LICENSE", doc = true, mode = "644" },
+]
+auto-req = "auto"
+
+[package.metadata.generate-rpm.requires]
+git = "*"

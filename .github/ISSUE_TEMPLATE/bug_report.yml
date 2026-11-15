@@ -1,0 +1,30 @@
+name: Bug report
+description: Something does not work as expected
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Steps to reproduce, what you expected and what you got.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: "github-redesktop --version"
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: Installation method
+      options: [".deb", ".rpm", ".tar.gz", "Nix / NixOS", "Built from source"]
+    validations:
+      required: true
+  - type: input
+    id: distro
+    attributes:
+      label: Distribution & desktop
+      placeholder: "e.g. Pop!_OS 24.04 / COSMIC, Fedora 42 / GNOME"

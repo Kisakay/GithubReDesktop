@@ -1,0 +1,14 @@
+[Desktop Entry]
+Name=GitHub ReDesktop
+GenericName=Git Client
+GenericName[fr]=Client Git
+Comment=Collaborate on GitHub from your Linux desktop
+Comment[fr]=Collaborez sur GitHub depuis votre bureau Linux
+Type=Application
+Icon=io.github.kisakay.GithubReDesktop
+Exec=github-redesktop
+Terminal=false
+StartupNotify=true
+StartupWMClass=io.github.kisakay.GithubReDesktop
+Categories=Development;RevisionControl;COSMIC;
+Keywords=git;github;version;control;commit;branch;pull;push;COSMIC;

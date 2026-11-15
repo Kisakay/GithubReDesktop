@@ -1,0 +1,8 @@
+/target
+/result
+/result-*
+/dist
+/vendor
+/vendor.tar
+/.direnv
+*.swp

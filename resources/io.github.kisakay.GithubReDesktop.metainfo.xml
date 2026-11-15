@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.kisakay.GithubReDesktop</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <name>GitHub ReDesktop</name>
+  <summary>Collaborate on GitHub from your Linux desktop</summary>
+  <developer id="io.github.kisakay">
+    <name>Kisakay</name>
+  </developer>
+  <description>
+    <p>
+      GitHub ReDesktop is a native rewrite of GitHub Desktop for Linux, built in Rust
+      with the COSMIC toolkit. It is fast, light and integrates with your desktop theme.
+    </p>
+    <ul>
+      <li>Review your changes with a clear, colored diff and pick the files to commit</li>
+      <li>Create, switch, rename, merge and delete branches</li>
+      <li>Fetch, pull, push and publish repositories to GitHub in one click</li>
+      <li>Browse the history, revert, cherry-pick or undo commits</li>
+      <li>Clone any of your GitHub repositories, stash changes and more</li>
+    </ul>
+  </description>
+  <launchable type="desktop-id">io.github.kisakay.GithubReDesktop.desktop</launchable>
+  <url type="homepage">https://github.com/Kisakay/GithubReDesktop</url>
+  <url type="bugtracker">https://github.com/Kisakay/GithubReDesktop/issues</url>
+  <provides>
+    <binary>github-redesktop</binary>
+  </provides>
+  <categories>
+    <category>Development</category>
+    <category>RevisionControl</category>
+  </categories>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="0.1.0" date="2026-11-15">
+      <description>
+        <p>First release.</p>
+      </description>
+    </release>
+  </releases>
+</component>
