@@ -6,6 +6,8 @@
 
 **A fast, native GitHub Desktop for Linux, rewritten in Rust with [libcosmic](https://github.com/pop-os/libcosmic).**
 
+🌐 **[regit.v.bzh](https://regit.v.bzh)**
+
 [![CI](https://github.com/Kisakay/GithubReDesktop/actions/workflows/ci.yml/badge.svg)](https://github.com/Kisakay/GithubReDesktop/actions/workflows/ci.yml)
 [![Release](https://github.com/Kisakay/GithubReDesktop/actions/workflows/release.yml/badge.svg)](https://github.com/Kisakay/GithubReDesktop/releases)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -102,6 +104,11 @@ Add it to your NixOS configuration with the flake module:
 }
 ```
 
+The flake serves the **prebuilt release binary** (patched for NixOS with `autoPatchelf`), so installing
+takes seconds instead of compiling. After each release, CI pins the tarball hashes in
+[`nix/release.json`](nix/release.json); releases are immutable, so those hashes never change.
+To build from source instead, use `packages.<system>.github-redesktop-source`.
+
 Also available: `overlays.default` (adds `pkgs.github-redesktop`), `homeManagerModules.default`
 (`programs.github-redesktop.enable`) and `packages.<system>.default`.
 
@@ -177,7 +184,8 @@ stash, discard, undo and revert.
 
 ## 🚀 Releasing
 
-Bump `version` in `Cargo.toml` (and the `<releases>` entry in the metainfo), then push a tag:
+Releases are **immutable**: each version is published exactly once and its assets are never replaced.
+Bump `version` in `Cargo.toml` (and the `<releases>` entry in the metainfo), then push a new tag:
 
 ```sh
 git tag v0.2.0 && git push origin v0.2.0
@@ -185,7 +193,10 @@ git tag v0.2.0 && git push origin v0.2.0
 
 The [release workflow](.github/workflows/release.yml) builds on native `x86_64` and `aarch64` runners
 (Ubuntu 22.04 for broad glibc compatibility), produces the `.tar.gz`, `.deb` and `.rpm` packages and a
-`SHA256SUMS` file, and publishes them in a GitHub release. The [CI workflow](.github/workflows/ci.yml)
+`SHA256SUMS` file, and publishes them in a GitHub release (created as a draft with every asset, then
+published in one step; the job refuses to touch a tag that already has a release). It then commits the
+tarball hashes to `nix/release.json` so the flake serves the new binaries. The
+[website workflow](.github/workflows/pages.yml) deploys [regit.v.bzh](https://regit.v.bzh) from `site/`. The [CI workflow](.github/workflows/ci.yml)
 runs rustfmt, clippy and the tests, and builds the Nix flake on both architectures.
 
 ## 🌍 Translations

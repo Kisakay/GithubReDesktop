@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GitHub ReDesktop — native Git client for Linux</title>
+  <meta name="description" content="A fast, native GitHub Desktop for Linux, rewritten in Rust with libcosmic. Packages for Debian, Fedora, any distro and NixOS, on x86_64 and aarch64.">
+  <meta name="theme-color" content="#4f7dff">
+  <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+  <meta property="og:title" content="GitHub ReDesktop">
+  <meta property="og:description" content="A fast, native GitHub Desktop for Linux, rewritten in Rust with libcosmic.">
+  <meta property="og:image" content="https://regit.v.bzh/assets/changes.png">
+  <meta property="og:url" content="https://regit.v.bzh/">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d1017;
+      --bg-2: #131823;
+      --card: #161c29;
+      --card-hover: #1b2232;
+      --border: #252d3f;
+      --text: #e8ecf4;
+      --muted: #97a1b8;
+      --accent: #63d4e8;
+      --violet: #7c5cff;
+      --blue: #4f7dff;
+      --cyan: #22c3ee;
+      --green: #4ade80;
+      --grad: linear-gradient(135deg, var(--violet) 0%, var(--blue) 55%, var(--cyan) 100%);
+      --radius: 16px;
+      --mono: "JetBrains Mono", ui-monospace, monospace;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f7f8fb;
+        --bg-2: #eef1f7;
+        --card: #ffffff;
+        --card-hover: #f3f5fa;
+        --border: #dde2ec;
+        --text: #141a26;
+        --muted: #5b6579;
+        --accent: #2f6bff;
+      }
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 16px/1.6 Inter, system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--mono); font-size: .92em; }
+    .wrap { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
+
+    nav {
+      position: sticky; top: 0; z-index: 10;
+      backdrop-filter: blur(14px);
+      background: color-mix(in srgb, var(--bg) 78%, transparent);
+      border-bottom: 1px solid var(--border);
+    }
+    nav .wrap { display: flex; align-items: center; gap: 28px; height: 64px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--text); }
+    .brand img { width: 30px; height: 30px; }
+    .brand:hover { text-decoration: none; }
+    nav .links { display: flex; gap: 22px; margin-left: auto; font-size: 15px; }
+    nav .links a { color: var(--muted); }
+    nav .links a:hover { color: var(--text); text-decoration: none; }
+
+    .hero { position: relative; padding: 88px 0 56px; text-align: center; overflow: hidden; }
+    .hero::before {
+      content: ""; position: absolute; inset: -40% -10% auto; height: 720px;
+      background: radial-gradient(closest-side, rgba(124, 92, 255, .28), transparent 70%),
+                  radial-gradient(closest-side at 70% 40%, rgba(34, 195, 238, .22), transparent 70%);
+      pointer-events: none; z-index: -1;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px; border-radius: 999px;
+      border: 1px solid var(--border); background: var(--card);
+      color: var(--muted); font-size: 14px;
+    }
+    .badge b { color: var(--text); font-weight: 600; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); }
+    h1 {
+      font-size: clamp(40px, 6.2vw, 72px); line-height: 1.04; letter-spacing: -0.035em;
+      margin: 24px auto 18px; max-width: 900px; font-weight: 800;
+    }
+    .grad { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .lead { font-size: 20px; color: var(--muted); max-width: 680px; margin: 0 auto 34px; }
+    .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 13px 22px; border-radius: 12px; font-weight: 600; font-size: 16px;
+      border: 1px solid var(--border); background: var(--card); color: var(--text);
+      transition: transform .15s ease, background .15s ease;
+    }
+    .btn:hover { text-decoration: none; transform: translateY(-1px); background: var(--card-hover); }
+    .btn.primary { background: var(--grad); border: 0; color: #fff; box-shadow: 0 10px 30px -10px rgba(79, 125, 255, .7); }
+    .btn svg { width: 18px; height: 18px; }
+    .meta { margin-top: 18px; color: var(--muted); font-size: 14px; }
+
+    .shot {
+      margin: 56px auto 0; max-width: 1080px; border-radius: 18px; padding: 10px;
+      background: linear-gradient(160deg, rgba(124, 92, 255, .45), rgba(34, 195, 238, .25) 60%, transparent);
+      box-shadow: 0 40px 120px -40px rgba(30, 60, 160, .65);
+    }
+    .shot img { display: block; width: 100%; height: auto; border-radius: 12px; }
+
+    section { padding: 84px 0; }
+    .eyebrow { color: var(--accent); font-weight: 600; font-size: 14px; letter-spacing: .08em; text-transform: uppercase; }
+    h2 { font-size: clamp(30px, 4vw, 44px); letter-spacing: -0.025em; line-height: 1.1; margin: 10px 0 14px; }
+    .sub { color: var(--muted); font-size: 18px; max-width: 640px; margin: 0 0 44px; }
+
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .stat { padding: 22px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); }
+    .stat b { display: block; font-size: 30px; letter-spacing: -0.02em; }
+    .stat span { color: var(--muted); font-size: 14px; }
+
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .card {
+      padding: 26px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--card);
+      transition: border-color .2s ease, transform .2s ease;
+      min-width: 0;
+    }
+    .card:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); transform: translateY(-2px); }
+    .card h3 { margin: 14px 0 6px; font-size: 18px; }
+    .card p { margin: 0; color: var(--muted); font-size: 15px; }
+    .ico {
+      width: 42px; height: 42px; border-radius: 11px; display: grid; place-items: center; flex: none;
+      background: color-mix(in srgb, var(--blue) 16%, transparent); color: var(--accent); font-weight: 700;
+    }
+    .ico svg { width: 22px; height: 22px; }
+
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+    .split figure { margin: 0; }
+    .split img { width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--border); display: block; }
+    .split figcaption { color: var(--muted); font-size: 14px; margin-top: 10px; text-align: center; }
+
+    .dl { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .pkg { display: flex; flex-direction: column; gap: 12px; }
+    .pkg .head { display: flex; align-items: center; gap: 12px; }
+    .pkg .head h3 { margin: 0; }
+    .pkg .head small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; }
+    .arch { display: flex; gap: 8px; margin-top: auto; }
+    .arch a {
+      flex: 1; text-align: center; padding: 9px 10px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--bg-2); color: var(--text);
+      font-size: 14px; font-weight: 600;
+    }
+    .arch a:hover { border-color: var(--accent); text-decoration: none; }
+    pre {
+      margin: 0; padding: 14px 16px; border-radius: 12px; overflow-x: auto;
+      background: var(--bg-2); border: 1px solid var(--border);
+      font: 13.5px/1.55 var(--mono); color: var(--text);
+    }
+    pre .c { color: var(--muted); }
+    .nix { margin-top: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .nix h3 { margin: 0 0 10px; font-size: 17px; }
+    .nix p { margin: 0 0 12px; }
+
+    .keys { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 40px; }
+    .key-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .key-row span { color: var(--muted); }
+    kbd {
+      font: 500 12.5px var(--mono); padding: 3px 8px; border-radius: 6px;
+      border: 1px solid var(--border); border-bottom-width: 2px; background: var(--card); color: var(--text);
+    }
+
+    footer { padding: 48px 0 64px; border-top: 1px solid var(--border); color: var(--muted); font-size: 14px; }
+    footer .wrap { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+
+    @media (max-width: 960px) {
+      .grid, .dl, .stats { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 680px) {
+      .wrap { padding: 0 16px; }
+      nav .links a:not(.gh) { display: none; }
+      .grid, .dl, .split, .nix, .keys, .stats { grid-template-columns: 1fr; }
+      .hero { padding-top: 56px; }
+      section { padding: 60px 0; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="wrap">
+      <a class="brand" href="#"><img src="assets/icon.svg" alt=""> GitHub ReDesktop</a>
+      <div class="links">
+        <a href="#features">Features</a>
+        <a href="#download">Download</a>
+        <a href="#shortcuts">Shortcuts</a>
+        <a class="gh" href="https://github.com/Kisakay/GithubReDesktop">GitHub ↗</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="wrap">
+      <span class="badge"><span class="dot"></span> <b id="version">Latest release</b> · x86_64 &amp; aarch64</span>
+      <h1>GitHub Desktop,<br><span class="grad">native on Linux.</span></h1>
+      <p class="lead">A fast rewrite of the GitHub Desktop workflow in Rust with libcosmic. No Electron, no web view — a single binary that starts instantly and follows your desktop theme.</p>
+      <div class="cta">
+        <a class="btn primary" href="#download">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m-5-5 5 5 5-5M4 20h16"/></svg>
+          Download
+        </a>
+        <a class="btn" href="https://github.com/Kisakay/GithubReDesktop">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 7-5 5 5 5M16 7l5 5-5 5"/></svg>
+          Source code
+        </a>
+      </div>
+      <p class="meta">.deb · .rpm · .tar.gz · NixOS flake — MIT licensed</p>
+      <div class="shot"><img src="assets/changes.png" alt="GitHub ReDesktop showing changed files and a colored diff" width="1240" height="800"></div>
+    </div>
+  </header>
+
+  <section>
+    <div class="wrap stats">
+      <div class="stat"><b>Rust</b><span>Memory-safe, single native binary</span></div>
+      <div class="stat"><b>COSMIC</b><span>Built with libcosmic &amp; iced</span></div>
+      <div class="stat"><b>2 arch</b><span>x86_64 and aarch64 builds</span></div>
+      <div class="stat"><b>git</b><span>Uses your real git &amp; .gitconfig</span></div>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="wrap">
+      <div class="eyebrow">Features</div>
+      <h2>Everything you use every day.</h2>
+      <p class="sub">The familiar GitHub Desktop flow — review, commit, branch, sync — rebuilt as a native Linux app.</p>
+      <div class="grid">
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h10M4 12h16M4 18h12"/></svg></div><h3>Pick what you commit</h3><p>Check the files to include, read a colored, line-numbered diff, write a summary and description, or amend the last commit.</p></div>
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="6" cy="5" r="2.2"/><circle cx="6" cy="19" r="2.2"/><circle cx="17" cy="7" r="2.2"/><path d="M6 7.2v9.6M17 9.2c0 4.5-11 3-11 7.6"/></svg></div><h3>Branches without friction</h3><p>Searchable branch picker: create, switch, rename, delete, check out remote branches and merge into the current one.</p></div>
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v4h-4"/></svg></div><h3>One-click sync</h3><p>A smart Fetch / Pull / Push / Publish button with ahead/behind counters and a quiet background fetch.</p></div>
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3.2"/><path d="M2 12h6.8M15.2 12H22"/></svg></div><h3>History that helps</h3><p>Browse commits with refs and unpushed markers. Undo, revert, cherry-pick or start a branch from any commit.</p></div>
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div><h3>GitHub sign-in</h3><p>Reuse your <code>gh</code> login or paste a token — kept in your system keyring. Clone from your repo list and publish new ones.</p></div>
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m8 7-5 5 5 5M16 7l5 5-5 5"/></svg></div><h3>Fits your desktop</h3><p>Dark, light or system theme, English &amp; French, keyboard shortcuts, and one click to your editor, terminal or file manager.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="eyebrow">Screenshots</div>
+      <h2>Looks right at home.</h2>
+      <p class="sub">Follows the COSMIC theme on Pop!_OS and works on any Wayland or X11 desktop.</p>
+      <div class="split">
+        <figure><img src="assets/history.png" alt="History view" width="1240" height="800" loading="lazy"><figcaption>History with commit details</figcaption></figure>
+        <figure><img src="assets/light.png" alt="Light theme" width="1240" height="800" loading="lazy"><figcaption>Light theme</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="download">
+    <div class="wrap">
+      <div class="eyebrow">Download</div>
+      <h2>Install in a minute.</h2>
+      <p class="sub">Every release ships for x86_64 and aarch64. The only runtime requirement is <code>git</code>.</p>
+      <div class="dl">
+        <div class="card pkg">
+          <div class="head"><div class="ico">D</div><h3>Debian / Ubuntu<small>.deb · Pop!_OS, Mint…</small></h3></div>
+          <pre>sudo apt install ./github-redesktop_*.deb</pre>
+          <div class="arch"><a data-asset="_amd64.deb" href="https://github.com/Kisakay/GithubReDesktop/releases/latest">x86_64</a><a data-asset="_arm64.deb" href="https://github.com/Kisakay/GithubReDesktop/releases/latest">aarch64</a></div>
+        </div>
+        <div class="card pkg">
+          <div class="head"><div class="ico">R</div><h3>Fedora / openSUSE<small>.rpm · RHEL, Nobara…</small></h3></div>
+          <pre>sudo dnf install ./github-redesktop-*.rpm</pre>
+          <div class="arch"><a data-asset=".x86_64.rpm" href="https://github.com/Kisakay/GithubReDesktop/releases/latest">x86_64</a><a data-asset=".aarch64.rpm" href="https://github.com/Kisakay/GithubReDesktop/releases/latest">aarch64</a></div>
+        </div>
+        <div class="card pkg">
+          <div class="head"><div class="ico">T</div><h3>Any distro<small>.tar.gz · installs to ~/.local</small></h3></div>
+          <pre>tar xzf github-redesktop-*.tar.gz
+./github-redesktop-*/install.sh</pre>
+          <div class="arch"><a data-asset="-linux-x86_64.tar.gz" href="https://github.com/Kisakay/GithubReDesktop/releases/latest">x86_64</a><a data-asset="-linux-aarch64.tar.gz" href="https://github.com/Kisakay/GithubReDesktop/releases/latest">aarch64</a></div>
+        </div>
+        <div class="card pkg">
+          <div class="head"><div class="ico">❄</div><h3>NixOS<small>prebuilt binary · no compiling</small></h3></div>
+          <pre>nix run github:Kisakay/GithubReDesktop</pre>
+          <div class="arch"><a href="#nix">Configure NixOS ↓</a></div>
+        </div>
+      </div>
+
+      <div class="nix" id="nix">
+        <div class="card">
+          <h3>NixOS module</h3>
+          <p>The flake serves the prebuilt release binary, patched for NixOS — installing takes seconds.</p>
+<pre><span class="c"># flake.nix</span>
+inputs.github-redesktop.url = "github:Kisakay/GithubReDesktop";
+
+<span class="c"># in your nixosSystem modules</span>
+github-redesktop.nixosModules.default
+{ programs.github-redesktop.enable = true; }</pre>
+        </div>
+        <div class="card">
+          <h3>Home Manager / overlay</h3>
+          <p>Prefer building it yourself? Use <code>packages.&lt;system&gt;.github-redesktop-source</code>.</p>
+<pre><span class="c"># Home Manager</span>
+imports = [ github-redesktop.homeManagerModules.default ];
+programs.github-redesktop.enable = true;
+
+<span class="c"># or the overlay → pkgs.github-redesktop</span>
+nixpkgs.overlays = [ github-redesktop.overlays.default ];</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="shortcuts">
+    <div class="wrap">
+      <div class="eyebrow">Keyboard</div>
+      <h2>Shortcuts you already know.</h2>
+      <p class="sub">Mirrors GitHub Desktop wherever it makes sense.</p>
+      <div class="keys">
+        <div class="key-row"><span>Push</span><kbd>Ctrl P</kbd></div>
+        <div class="key-row"><span>Pull</span><kbd>Ctrl Shift P</kbd></div>
+        <div class="key-row"><span>Fetch</span><kbd>Ctrl Shift T</kbd></div>
+        <div class="key-row"><span>New branch</span><kbd>Ctrl Shift N</kbd></div>
+        <div class="key-row"><span>Changes / History</span><kbd>Ctrl 1 / 2</kbd></div>
+        <div class="key-row"><span>Merge into current</span><kbd>Ctrl Shift M</kbd></div>
+        <div class="key-row"><span>Clone repository</span><kbd>Ctrl Shift O</kbd></div>
+        <div class="key-row"><span>Open in editor</span><kbd>Ctrl Shift A</kbd></div>
+        <div class="key-row"><span>Stash changes</span><kbd>Ctrl Shift S</kbd></div>
+        <div class="key-row"><span>View on GitHub</span><kbd>Ctrl Shift G</kbd></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <div>© 2026 Kisakay · <a href="https://github.com/Kisakay/GithubReDesktop/blob/main/LICENSE">MIT License</a><br>
+        Not affiliated with GitHub, Inc. Inspired by <a href="https://github.com/desktop/desktop">GitHub Desktop</a>.</div>
+      <div><a href="https://github.com/Kisakay/GithubReDesktop">Source</a> · <a href="https://github.com/Kisakay/GithubReDesktop/releases">Releases</a> · <a href="https://github.com/Kisakay/GithubReDesktop/issues">Issues</a></div>
+    </div>
+  </footer>
+
+  <script>
+    // Point download buttons at the exact assets of the latest release.
+    fetch("https://api.github.com/repos/Kisakay/GithubReDesktop/releases/latest")
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((release) => {
+        document.getElementById("version").textContent = release.tag_name;
+        document.querySelectorAll("[data-asset]").forEach((link) => {
+          const asset = release.assets.find((a) => a.name.endsWith(link.dataset.asset));
+          if (asset) link.href = asset.browser_download_url;
+        });
+      })
+      .catch(() => {});
+  </script>
+</body>
+</html>

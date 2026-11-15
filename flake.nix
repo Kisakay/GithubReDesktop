@@ -15,10 +15,23 @@
       forAllSystems = f: nixpkgs.lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
     in
     {
-      packages = forAllSystems (pkgs: rec {
-        github-redesktop = pkgs.callPackage ./nix/package.nix { };
-        default = github-redesktop;
-      });
+      # Prebuilt release binary when available (no compilation), source build otherwise.
+      packages = forAllSystems (
+        pkgs:
+        let
+          system = pkgs.stdenv.hostPlatform.system;
+          release = nixpkgs.lib.importJSON ./nix/release.json;
+          hasBinary = release.version != null && release.hashes ? ${system};
+          source = pkgs.callPackage ./nix/package.nix { };
+          binary = pkgs.callPackage ./nix/bin.nix { inherit release; };
+        in
+        {
+          github-redesktop-source = source;
+          github-redesktop = if hasBinary then binary else source;
+          default = self.packages.${system}.github-redesktop;
+        }
+        // nixpkgs.lib.optionalAttrs hasBinary { github-redesktop-bin = binary; }
+      );
 
       apps = forAllSystems (pkgs: rec {
         github-redesktop = {
@@ -29,7 +42,7 @@
       });
 
       overlays.default = final: _prev: {
-        github-redesktop = final.callPackage ./nix/package.nix { };
+        github-redesktop = self.packages.${final.stdenv.hostPlatform.system}.github-redesktop;
       };
 
       nixosModules.default = import ./nix/module.nix self;
@@ -39,7 +52,7 @@
 
       devShells = forAllSystems (pkgs: {
         default = pkgs.mkShell {
-          inputsFrom = [ self.packages.${pkgs.stdenv.hostPlatform.system}.default ];
+          inputsFrom = [ self.packages.${pkgs.stdenv.hostPlatform.system}.github-redesktop-source ];
           packages = with pkgs; [
             cargo
             rustc

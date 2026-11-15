@@ -26,7 +26,7 @@ jobs:
             runner: ubuntu-24.04-arm
     runs-on: ${{ matrix.runner }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Install system dependencies
         run: |
@@ -66,14 +66,16 @@ jobs:
             runner: ubuntu-24.04-arm
     runs-on: ${{ matrix.runner }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: cachix/install-nix-action@v31
         with:
           extra_nix_config: |
             accept-flake-config = true
       - name: Check flake
         run: nix flake check --no-build
-      - name: Build package
-        run: nix build .#default -L
+      - name: Build from source
+        run: nix build .#github-redesktop-source -L
       - name: Smoke test
         run: ./result/bin/github-redesktop --version
+      - name: Build default package (prebuilt binary once released)
+        run: nix build .#default -L && ./result/bin/github-redesktop --version
