@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://regit.v.bzh/sitemap.xml

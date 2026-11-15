@@ -1,0 +1,3 @@
+# Keep the website and docs out of GitHub's language statistics.
+site/** linguist-documentation
+docs/** linguist-documentation

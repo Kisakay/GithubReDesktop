@@ -1,0 +1,71 @@
+<!doctype html>
+<!-- Source of site/og.png (1200×630). Regenerate with docs/og/render.sh -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;700;800&display=block" rel="stylesheet">
+<style>
+  html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; }
+  body {
+    position: relative;
+    background: #15172e;
+    color: #f2f3fa;
+    font-family: "Schibsted Grotesk", sans-serif;
+  }
+  /* Faint dot grid, like the canvas behind a commit graph. */
+  body::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: radial-gradient(rgba(255,255,255,.07) 1px, transparent 1.2px);
+    background-size: 28px 28px;
+  }
+  svg.rail { position: absolute; inset: 0; }
+  .text { position: absolute; left: 120px; top: 92px; width: 520px; }
+  .brand { display: flex; align-items: center; gap: 18px; }
+  .brand img { width: 76px; height: 76px; }
+  .brand span { font-size: 30px; font-weight: 700; letter-spacing: -0.01em; }
+  h1 {
+    margin: 56px 0 0;
+    font-size: 64px; line-height: 1.02; font-weight: 800; letter-spacing: -0.035em;
+  }
+  p { margin: 26px 0 0; font-size: 26px; line-height: 1.35; color: #b6bad4; font-weight: 500; }
+  .url {
+    position: absolute; left: 120px; bottom: 64px;
+    font-size: 24px; font-weight: 700; color: #8ea0ff; letter-spacing: 0.01em;
+  }
+  .shot {
+    position: absolute; left: 700px; top: 104px; width: 760px;
+    border-radius: 14px; overflow: hidden;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.12), 0 40px 80px -10px rgba(0,0,0,.6);
+  }
+  .shot img { display: block; width: 100%; }
+</style>
+</head>
+<body>
+  <!-- The branch rail: main line on the left, a feature branch forking into the screenshot. -->
+  <svg class="rail" width="1200" height="630" viewBox="0 0 1200 630" aria-hidden="true">
+    <defs>
+      <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#7c5cff"/>
+        <stop offset=".55" stop-color="#4f7dff"/>
+        <stop offset="1" stop-color="#22c3ee"/>
+      </linearGradient>
+      <linearGradient id="h" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#4f7dff"/>
+        <stop offset="1" stop-color="#22c3ee"/>
+      </linearGradient>
+    </defs>
+    <path d="M64 0 V630" stroke="url(#g)" stroke-width="4" fill="none"/>
+    <path d="M64 551 C64 598 96 604 170 604 H640 C680 604 696 596 708 584" stroke="url(#h)" stroke-width="4" fill="none"/>
+    <circle cx="64" cy="130" r="13" fill="#15172e" stroke="#7c5cff" stroke-width="5"/>
+    <circle cx="64" cy="551" r="13" fill="#15172e" stroke="#22c3ee" stroke-width="5"/>
+  </svg>
+
+  <div class="text">
+    <div class="brand"><img src="icon.svg" alt=""><span>GitHub ReDesktop</span></div>
+    <h1>GitHub Desktop, rebuilt natively for Linux</h1>
+    <p>Written in Rust with libcosmic. Packages for Debian, Fedora, any distro and NixOS.</p>
+  </div>
+  <div class="url">regit.v.bzh</div>
+  <div class="shot"><img src="changes.png" alt=""></div>
+</body>
+</html>

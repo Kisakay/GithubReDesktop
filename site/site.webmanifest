@@ -1,0 +1,13 @@
+{
+  "name": "GitHub ReDesktop",
+  "short_name": "ReDesktop",
+  "description": "A native GitHub Desktop for Linux, written in Rust with libcosmic.",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#fbfbfd",
+  "theme_color": "#15172e",
+  "icons": [
+    { "src": "/assets/icon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/assets/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

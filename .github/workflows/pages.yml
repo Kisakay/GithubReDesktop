@@ -6,6 +6,7 @@ on:
     paths:
       - "site/**"
       - "docs/screenshots/**"
+      - "docs/og/**"
       - "resources/icons/hicolor/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
