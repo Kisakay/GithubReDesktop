@@ -22,8 +22,27 @@
     </ul>
   </description>
   <launchable type="desktop-id">io.github.kisakay.GithubReDesktop.desktop</launchable>
-  <url type="homepage">https://github.com/Kisakay/GithubReDesktop</url>
+  <url type="homepage">https://regit.v.bzh</url>
+  <url type="vcs-browser">https://github.com/Kisakay/GithubReDesktop</url>
   <url type="bugtracker">https://github.com/Kisakay/GithubReDesktop/issues</url>
+  <screenshots>
+    <screenshot type="default">
+      <caption>Review your changes and commit them</caption>
+      <image type="source" width="1240" height="800">https://regit.v.bzh/assets/changes.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Browse the history of your repository</caption>
+      <image type="source" width="1240" height="800">https://regit.v.bzh/assets/history.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Follows your light or dark desktop theme</caption>
+      <image type="source" width="1240" height="800">https://regit.v.bzh/assets/light.png</image>
+    </screenshot>
+  </screenshots>
+  <branding>
+    <color type="primary" scheme_preference="light">#c9c2ff</color>
+    <color type="primary" scheme_preference="dark">#2a2560</color>
+  </branding>
   <provides>
     <binary>github-redesktop</binary>
   </provides>
